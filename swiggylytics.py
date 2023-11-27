@@ -254,7 +254,7 @@ with st.container():
     
     # UNCOMMENT FOR TABLE VIEW
     fnCalls = [
-        [totalOrders, totalAmt, (totalAmt/12)]
+        [totalOrders, totalAmt, round(totalAmt/12)]
     ]
     # Convert the list to a NumPy array
     array = np.array(fnCalls)
