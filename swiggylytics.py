@@ -240,7 +240,7 @@ with st.container():
 st.write("---")
 
 with st.container():
-    file_path = "C:\\Users\\HP\\Downloads\\orders.json"  
+    file_path = "orders.json"  
     with open(file_path, "r") as file:
         data = file.read()
     order_history = load_order_history(data)
