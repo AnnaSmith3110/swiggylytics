@@ -362,9 +362,9 @@ with st.container():
         day_mapping = {'Monday': 1, 'Tuesday': 2, 'Wednesday': 3, 'Thursday': 4, 'Friday': 5, 'Saturday': 6, 'Sunday': 7}
         daydf['Day'] = daydf['Day'].map(day_mapping)
     
-        # Create Altair chart with 'Day' on the x-axis
+        # Create Altair chart with 'Day' on the x-axis as Nominal data type
         chart = alt.Chart(daydf).mark_line().encode(
-            x='Day',
+            x=alt.X('Day:N', axis=alt.Axis(title='Day')),  # Specify the x-axis as Nominal
             y='Count'
         )
     
@@ -376,12 +376,6 @@ with st.container():
         monthdf['Month'] = pd.Categorical(monthdf['Month'], categories=['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'], ordered=True)
 
         st.line_chart(monthdf.set_index('Month'))
-        # temp = max(monthOrders.values())
-        # res = [key for key in monthOrders if monthOrders[key] == temp]
-        # st.write("Months with most orders:",res)
-        # temp = min(monthOrders.values())
-        # res = [key for key in monthOrders if monthOrders[key] == temp]
-        # st.write("Months with least orders:",res)
     with tab3:
         orderTime = extract_order_time(order_history)
         orderTimedf = pd.DataFrame(list(orderTime.items()),columns=['Time', 'Count'])
