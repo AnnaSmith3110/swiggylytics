@@ -357,8 +357,12 @@ with st.container():
         daydf = pd.DataFrame(list(dayOrders.items()), columns=['Day', 'Count'])
         # Convert 'Day' column to ordered categorical variable
         daydf['Day'] = pd.Categorical(daydf['Day'], categories=['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'], ordered=True)
-        daydf['Day'] = daydf['Day'].astype(str)
-         # Create Altair chart with 'Day' on the x-axis
+    
+        # Create a mapping from day names to numerical values
+        day_mapping = {'Monday': 1, 'Tuesday': 2, 'Wednesday': 3, 'Thursday': 4, 'Friday': 5, 'Saturday': 6, 'Sunday': 7}
+        daydf['Day'] = daydf['Day'].map(day_mapping)
+    
+        # Create Altair chart with 'Day' on the x-axis
         chart = alt.Chart(daydf).mark_line().encode(
             x='Day',
             y='Count'
