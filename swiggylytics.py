@@ -358,16 +358,12 @@ with st.container():
         # Convert 'Day' column to ordered categorical variable
         daydf['Day'] = pd.Categorical(daydf['Day'], categories=['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'], ordered=True)
     
-        # Create a mapping from day names to numerical values
-        day_mapping = {'Monday': 1, 'Tuesday': 2, 'Wednesday': 3, 'Thursday': 4, 'Friday': 5, 'Saturday': 6, 'Sunday': 7}
-        daydf['Day'] = daydf['Day'].map(day_mapping)
-    
-        # Sort DataFrame by the numerical 'Day' column
+        # Sort DataFrame by the categorical 'Day' column
         daydf = daydf.sort_values(by='Day')
     
-        # Create Altair chart with 'Day' on the x-axis as Quantitative data type
+        # Create Altair chart with 'Day' on the x-axis as Nominal data type
         chart = alt.Chart(daydf).mark_line().encode(
-            x=alt.X('Day:Q', axis=alt.Axis(title='Day')),  # Specify the x-axis as Quantitative with a custom title
+            x='Day:N',  # Specify the x-axis as Nominal
             y='Count'
         ).properties(
             width=600,  # Adjust the width as needed
