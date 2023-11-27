@@ -358,8 +358,14 @@ with st.container():
         # Convert 'Day' column to ordered categorical variable
         daydf['Day'] = pd.Categorical(daydf['Day'], categories=['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'], ordered=True)
         daydf['Day'] = daydf['Day'].astype(str)
-        # Plot the line chart
-        st.line_chart(daydf.set_index('Day').sort_index())
+         # Create Altair chart with 'Day' on the x-axis
+        chart = alt.Chart(daydf).mark_line().encode(
+            x='Day',
+            y='Count'
+        )
+    
+        # Display Altair chart using Streamlit
+        st.altair_chart(chart, use_container_width=True)
     with tab2:
         monthOrders = extract_order_month_counts(order_history)
         monthdf = pd.DataFrame(list(monthOrders.items()), columns=['Month', 'Count'])
