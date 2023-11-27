@@ -359,7 +359,7 @@ with st.container():
         daydf['Day'] = pd.Categorical(daydf['Day'], categories=['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'], ordered=True)
         daydf['Day'] = daydf['Day'].astype(str)
         # Plot the line chart
-        st.line_chart(daydf.set_index('Day'))
+        st.line_chart(daydf.set_index('Day').sort_index())
     with tab2:
         monthOrders = extract_order_month_counts(order_history)
         monthdf = pd.DataFrame(list(monthOrders.items()), columns=['Month', 'Count'])
