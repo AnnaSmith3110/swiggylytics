@@ -358,8 +358,8 @@ with st.container():
         # Convert 'Day' column to ordered categorical variable
         daydf['Day'] = pd.Categorical(daydf['Day'], categories=['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'], ordered=True)
     
-        # Sort DataFrame by the categorical 'Day' column
-        daydf = daydf.sort_values(by='Day')
+        # # Sort DataFrame by the categorical 'Day' column
+        # daydf = daydf.sort_values(by='Day')
     
         # Create Altair chart with 'Day' on the x-axis as Nominal data type
         chart = alt.Chart(daydf).mark_line().encode(
