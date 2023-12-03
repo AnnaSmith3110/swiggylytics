@@ -11,6 +11,7 @@ import json
 from streamlit_lottie import st_lottie
 from rich import print
 
+
 #---STYLES----
 st.markdown("""
 <style>
@@ -53,14 +54,14 @@ def calc_total_orders(order_history):
     for my_dict in order_history:
         order_items = my_dict.get("order_items", [])  # Get the order_items array from the dictionary
         totalOrders += len(order_items)
-    return totalOrders
+    return int(totalOrders)
 
 #total amount spen
 def calc_total_spent(order_history):
     totalAmt = 0.00
     for i in range(len(order_history)):
         totalAmt += float(order_history[i]["net_total"])
-    return totalAmt
+    return int(totalAmt)
 
 def calc_totalGST(order_history):
     totalGst = 0.00
@@ -112,22 +113,6 @@ def dishes_order_count(order_history):
     # Sort the value_counts Series by values in descending order
     sorted_counts = value_counts.sort_values(ascending=False)
     return sorted_counts
-
-# def food_type_count(order_history):
-#     foodType = []
-#     nonvegCount = 0
-#     vegCount = 0
-#     for my_dict in order_history:
-#         order_items = my_dict.get("order_items", [])  # Get the order_items array from the dictionary
-#         for item in order_items:
-#             item_type = item.get("is_veg")
-#             if item_type == "1":
-#                 vegCount+=1
-#             else:
-#                 nonvegCount+=1
-#     foodType.append(vegCount)
-#     foodType.append(nonvegCount)
-#     return foodType
 
 def food_type_count(order_history):
     foodType = {}
@@ -249,9 +234,7 @@ with st.container():
     # st.markdown('<p class="code-headers">How many orders have I placed?</p>', unsafe_allow_html=True)
     totalOrders = calc_total_orders(order_history)
     totalAmt = calc_total_spent(order_history)
-    # st.write("###")
-    # st.markdown('<p class="code-headers">How much have I spent in total?</p>', unsafe_allow_html=True)
-    
+   
     # UNCOMMENT FOR TABLE VIEW
     fnCalls = [
         [totalOrders, totalAmt, round((totalAmt/12), 2)]
@@ -259,10 +242,11 @@ with st.container():
     # Convert the list to a NumPy array
     array = np.array(fnCalls)
     # Create a DataFrame with column names
-    columns = ['Total Orders', 'Total amount spent(₹)', 'Avg amount spent per month(₹)']
-    df = pd.DataFrame(data=array, columns=columns)
-    df = df.style.set_properties(**{'color': 'rgb(9 171 59)', 'font-size':'0.5rem'})
-    st.dataframe(df)
+    columns = ['Total Orders', 'Total Amount Spent(₹)', 'Avg Amount Spent Per Month(₹)']
+    df = pd.DataFrame(data=array, columns=columns, index=None).round(2)
+    df_dict = df.to_dict(orient='list')
+    df_style = df.style.set_properties(**{'color': 'rgb(9 171 59)', 'font-size':'0.5rem'}, hide_index=True)
+    st.dataframe(df_style)
         
     st.write("###")
     st.subheader("🎨Data visualization")
@@ -273,14 +257,15 @@ with st.container():
     
     
     # Convert data to a Pandas DataFrame
-    df = pd.DataFrame(restaurantOrderCount.items(), columns=['Restaurant Names', 'Frequency'])
+    df_restaurant  = pd.DataFrame(restaurantOrderCount.items(), columns=['Restaurant Names', 'Frequency'])
+    df_restaurant = df_restaurant.sort_values(by='Frequency', ascending=False)
 
     # Create the chart using Altair
     restaurantChart = (
-        alt.Chart(df)
+        alt.Chart(df_restaurant)
         .mark_bar()
         .encode(
-            alt.X("Restaurant Names"),
+            alt.X("Restaurant Names:N", sort=alt.EncodingSortField(field="Frequency", op="sum", order="descending")),
             alt.Y("Frequency"),
             alt.Color("Restaurant Names:N", scale=alt.Scale(scheme='viridis')),
             tooltip=["Restaurant Names", "Frequency"],
@@ -297,14 +282,14 @@ with st.container():
     st.markdown('<p class="code-headers">2. Frequently Ordered Dishes</p>', unsafe_allow_html=True)
     dishesCount = dishes_order_count(order_history)
     # Convert data to a Pandas DataFrame
-    df = pd.DataFrame(dishesCount.items(), columns=['Dish Names', 'Frequency'])
+    df = pd.DataFrame(dishesCount.items(), columns=['Dish Names', 'Frequency']).sort_values(by='Frequency', ascending=False)
 
     # Create the chart using Altair
     dishChart = (
         alt.Chart(df)
         .mark_bar()
         .encode(
-            alt.X("Dish Names"),
+            alt.X("Dish Names:N", sort=alt.EncodingSortField(field="Frequency", op="sum", order="descending")),
             alt.Y("Frequency"),
             alt.Color("Dish Names:N", scale=alt.Scale(scheme='magma')),
             tooltip=["Dish Names", "Frequency"],
@@ -359,11 +344,11 @@ with st.container():
         daydf['Day'] = pd.Categorical(daydf['Day'], categories=['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'], ordered=True)
     
         # # Sort DataFrame by the categorical 'Day' column
-        # daydf = daydf.sort_values(by='Day')
+        daydf = daydf.sort_values(by='Day')
     
         # Create Altair chart with 'Day' on the x-axis as Nominal data type
         chart = alt.Chart(daydf).mark_line().encode(
-            x='Day:N',  # Specify the x-axis as Nominal
+            x=alt.X('Day:N', sort=['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday']),  # Specify the x-axis as Nominal with a custom sort order  # Specify the x-axis as Nominal
             y='Count'
         ).properties(
             width=600,  # Adjust the width as needed
@@ -375,9 +360,18 @@ with st.container():
     with tab2:
         monthOrders = extract_order_month_counts(order_history)
         monthdf = pd.DataFrame(list(monthOrders.items()), columns=['Month', 'Count'])
-        monthdf['Month'] = pd.Categorical(monthdf['Month'], categories=['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'], ordered=True)
+        monthdf['Month'] = pd.Categorical(monthdf['Month'], categories=['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'])
+        # Create Altair chart with 'Month' on the x-axis as Nominal data type
+        chart = alt.Chart(monthdf).mark_line().encode(
+            x=alt.X('Month:N', sort=['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December']),  # Specify the x-axis as Nominal with a custom sort order
+            y='Count'
+        ).properties(
+            width=600,  # Adjust the width as needed
+            height=400  # Adjust the height as needed
+        )
 
-        st.line_chart(monthdf.set_index('Month'))
+        # Display Altair chart using Streamlit
+        st.altair_chart(chart, use_container_width=True)
     with tab3:
         orderTime = extract_order_time(order_history)
         orderTimedf = pd.DataFrame(list(orderTime.items()),columns=['Time', 'Count'])
@@ -434,9 +428,3 @@ with st.container():
         )
         # Display the pie chart
         st.altair_chart(pie_chart)
-
-
-
-
-
-    
